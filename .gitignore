@@ -36,3 +36,12 @@ lerna-debug.log*
 
 # env
 .env
+
+# DB
+prisma/migrations/*
+postgres-data/*
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
