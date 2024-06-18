@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '@/users/users.service';
+import { RegisterUserDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,15 +37,11 @@ export class AuthController {
   }
 
   @Post('join/email')
-  joinEmail(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('name') name: string,
-  ) {
-    if (this.userService.getUserByEmail(email))
+  joinEmail(@Body() registerUser: RegisterUserDto) {
+    if (this.userService.getUserByEmail(registerUser.email))
       throw new ConflictException('User already exists');
 
-    return this.authService.registerWithEmail({ email, password, name });
+    return this.authService.registerWithEmail(registerUser);
   }
 
   @Post('token/access')
