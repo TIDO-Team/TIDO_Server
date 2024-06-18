@@ -2,13 +2,16 @@ import {
   Body,
   ConflictException,
   Controller,
-  Get,
   Headers,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '@/users/users.service';
 import { RegisterUserDto } from './dto/auth.dto';
+import { IsPublic } from '@/common/decorator/isPublic.decorator';
+import { RefreshTokenGuard } from './guard/bearer-token.guard';
+import { BasicTokenGuard } from './guard/basic-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -17,18 +20,10 @@ export class AuthController {
     private readonly userService: UsersService,
   ) {}
 
-  @Get()
-  getAuth() {
-    return { data: 'Auth Controller' };
-  }
-
   @Post('login/email')
-  loginEmail(
-    @Headers('Authorization') rowToken: string,
-    @Headers() headers: any,
-  ) {
-    console.log('rowToken', rowToken, headers);
-
+  @IsPublic()
+  @UseGuards(BasicTokenGuard)
+  loginEmail(@Headers('Authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken, 'Basic');
 
     const credentials = this.authService.decodeBasicToken(token);
@@ -37,6 +32,7 @@ export class AuthController {
   }
 
   @Post('join/email')
+  @IsPublic()
   async joinEmail(@Body() registerUser: RegisterUserDto) {
     if (await this.userService.getUserByEmail(registerUser.email))
       throw new ConflictException('User already exists');
@@ -45,6 +41,8 @@ export class AuthController {
   }
 
   @Post('token/access')
+  @IsPublic()
+  @UseGuards(RefreshTokenGuard)
   postTokenAccess(@Headers('Authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken, 'Bearer');
 
@@ -54,6 +52,8 @@ export class AuthController {
   }
 
   @Post('token/refresh')
+  @IsPublic()
+  @UseGuards(RefreshTokenGuard)
   postTokenRefresh(@Headers('Authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken, 'Bearer');
 
