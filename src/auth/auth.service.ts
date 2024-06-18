@@ -78,7 +78,7 @@ export class AuthService {
     return this.loginUser(newUser);
   }
 
-  extractTokenFromHeader(header: string, tokenType: 'Bearer' | 'Basic') {
+  extractTokenFromHeader(header: string, tokenType: 'Basic' | 'Bearer') {
     const [type, token, ...rest] = header.split(' ');
 
     if (rest.length > 0 || type != tokenType || !token) {

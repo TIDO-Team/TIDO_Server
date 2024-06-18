@@ -4,14 +4,15 @@ import {
   Controller,
   Headers,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '@/users/users.service';
 import { RegisterUserDto } from './dto/auth.dto';
 import { IsPublic } from '@/common/decorator/isPublic.decorator';
-import { RefreshTokenGuard } from './guard/bearer-token.guard';
-import { BasicTokenGuard } from './guard/basic-token.guard';
+import {
+  OnlyBasicTokenGuard,
+  OnlyRefreshTokenGuard,
+} from './decorator/OnlyTokenGuard.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -21,8 +22,7 @@ export class AuthController {
   ) {}
 
   @Post('login/email')
-  @IsPublic()
-  @UseGuards(BasicTokenGuard)
+  @OnlyBasicTokenGuard()
   loginEmail(@Headers('Authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken, 'Basic');
 
@@ -41,8 +41,7 @@ export class AuthController {
   }
 
   @Post('token/access')
-  @IsPublic()
-  @UseGuards(RefreshTokenGuard)
+  @OnlyRefreshTokenGuard()
   postTokenAccess(@Headers('Authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken, 'Bearer');
 
@@ -52,8 +51,7 @@ export class AuthController {
   }
 
   @Post('token/refresh')
-  @IsPublic()
-  @UseGuards(RefreshTokenGuard)
+  @OnlyRefreshTokenGuard()
   postTokenRefresh(@Headers('Authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken, 'Bearer');
 
