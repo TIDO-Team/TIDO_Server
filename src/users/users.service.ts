@@ -5,11 +5,11 @@ import { UserRepository } from './users.repository';
 export class UsersService {
   constructor(private readonly userReposiotry: UserRepository) {}
 
-  async findAll() {
+  async getAll() {
     return this.userReposiotry.findMany({});
   }
 
-  async findById(id: number) {
+  async getUserById(id: number) {
     const user = await this.userReposiotry.findUnique({ where: { id } });
 
     if (!user) {
@@ -17,6 +17,10 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async getUserByEmail(email: string) {
+    return this.userReposiotry.findUnique({ where: { email } });
   }
 
   async create(user: { email: string; password: string; name?: string }) {
