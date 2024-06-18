@@ -100,14 +100,14 @@ export class AuthService {
     return { email, password };
   }
 
-  verifiyToken(token: string) {
+  verifyToken(token: string) {
     return this.jwtService.verify(token, {
       secret: this.configService.get('jwt.secert'),
     });
   }
 
   rotateToken(token: string, isRefreshToken: 'access' | 'refresh' = 'access') {
-    const decoded = this.verifiyToken(token);
+    const decoded = this.verifyToken(token);
 
     if (decoded.type !== 'refresh') {
       throw new UnauthorizedException(

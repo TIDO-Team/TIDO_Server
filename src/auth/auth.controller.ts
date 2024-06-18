@@ -37,8 +37,8 @@ export class AuthController {
   }
 
   @Post('join/email')
-  joinEmail(@Body() registerUser: RegisterUserDto) {
-    if (this.userService.getUserByEmail(registerUser.email))
+  async joinEmail(@Body() registerUser: RegisterUserDto) {
+    if (await this.userService.getUserByEmail(registerUser.email))
       throw new ConflictException('User already exists');
 
     return this.authService.registerWithEmail(registerUser);
