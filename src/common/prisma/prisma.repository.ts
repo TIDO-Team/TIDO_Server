@@ -15,7 +15,37 @@ export interface PrismaDelegate {
 export class PrismaRepository<D extends PrismaDelegate>
   implements PrismaDelegate
 {
-  constructor(protected delegate: D) {}
+  constructor(
+    protected delegate: D,
+    protected entity?: new (data: any) => any,
+  ) {
+    return new Proxy(this, {
+      get: function (target, prop) {
+        const origMethod = target[prop];
+
+        if (
+          typeof origMethod !== 'function' ||
+          prop === 'getDelegate' ||
+          !target.entity
+        ) {
+          return origMethod;
+        }
+
+        return async function (...args) {
+          const result = await origMethod.apply(target, args);
+          return target.responseSerializer(result);
+        };
+      },
+    });
+  }
+
+  public responseSerializer(data: any) {
+    if (Array.isArray(data)) {
+      return data.map((item) => new this.entity(item));
+    } else {
+      return new this.entity(data);
+    }
+  }
 
   public getDelegate(): D {
     return this.delegate;
@@ -47,8 +77,10 @@ export class PrismaRepository<D extends PrismaDelegate>
     return this.getDelegate().findFirst(data);
   }
 
-  findMany(data: Parameters<D['findMany']>[0]): ReturnType<D['findMany']> {
-    return this.getDelegate().findMany(data);
+  async findMany(
+    data: Parameters<D['findMany']>[0],
+  ): Promise<ReturnType<D['findMany']>> {
+    return await this.getDelegate().findMany(data);
   }
 
   findUnique(

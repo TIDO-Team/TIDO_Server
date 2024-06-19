@@ -1,5 +1,7 @@
+import { PrismaEntity } from '@/common/prisma/prisma.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
+import { Exclude, Expose } from 'class-transformer';
 
 import {
   IsDate,
@@ -11,15 +13,18 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class UserEntity implements User {
+@Exclude()
+export class UserEntity extends PrismaEntity<User> implements User {
   @ApiProperty({ name: 'id' })
   @IsNotEmpty()
   @IsNumber()
+  @Expose()
   id: number;
 
   @ApiProperty({ name: 'email' })
   @IsNotEmpty()
   @IsEmail()
+  @Expose()
   email: string;
 
   @ApiProperty({ name: 'password' })
@@ -31,6 +36,7 @@ export class UserEntity implements User {
   @ApiProperty({ name: 'name' })
   @IsOptional()
   @IsString()
+  @Expose()
   name: string;
 
   @ApiProperty({ name: 'createdAt' })
