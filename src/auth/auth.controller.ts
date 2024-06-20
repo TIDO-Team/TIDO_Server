@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   Headers,
   Post,
 } from '@nestjs/common';
@@ -9,10 +10,14 @@ import { AuthService } from './auth.service';
 import { UsersService } from '@/users/users.service';
 import { RegisterUserDto } from './dto/auth.dto';
 import { IsPublic } from '@/common/decorator/isPublic.decorator';
+
 import {
   OnlyBasicTokenGuard,
   OnlyRefreshTokenGuard,
 } from './decorator/OnlyTokenGuard.decorator';
+
+import { AuthUser } from './decorator/authUser.decorator';
+import { UserEntity } from '@/users/entites/users.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +25,11 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UsersService,
   ) {}
+
+  @Get()
+  getAuth(@AuthUser() user: UserEntity) {
+    return user;
+  }
 
   @Post('login/email')
   @OnlyBasicTokenGuard()
